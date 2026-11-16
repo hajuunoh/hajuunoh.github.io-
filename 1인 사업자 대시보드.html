@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>1인 사업자 대시보드</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f6f5;--surface:#fff;--ink:#17262b;--muted:#6a7b80;--line:#dbe3e2;--accent:#1d6b5c;--accent-ink:#fff;--warn:#b4531f;--soft:#e4efec;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10181b;--surface:#18242a;--ink:#e6eeee;--muted:#8da0a5;--line:#2a3a41;--accent:#4fb89f;--accent-ink:#0b1a17;--warn:#e8915c;--soft:#1f3631;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#10181b;--surface:#18242a;--ink:#e6eeee;--muted:#8da0a5;--line:#2a3a41;--accent:#4fb89f;--accent-ink:#0b1a17;--warn:#e8915c;--soft:#1f3631;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.6 "Noto Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.wrap{max-width:1040px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:22px;margin:0 0 2px;letter-spacing:-.02em}
+.sub{color:var(--muted);margin:0 0 18px;font-size:14px}
+nav{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:20px;overflow-x:auto}
+nav button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;font:inherit;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap}
+nav button[aria-selected=true]{color:var(--ink);border-color:var(--accent)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:16px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px}
+.panel h2{font-size:15px;margin:0 0 10px}
+.big{font-size:40px;font-weight:700;letter-spacing:-.03em;line-height:1.1;font-variant-numeric:tabular-nums}
+.muted{color:var(--muted);font-size:13px}
+.stats{display:grid;gap:10px;align-content:start}
+.stat{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:8px}
+.stat:last-child{border:0;padding:0}
+.stat b{font-size:20px;font-variant-numeric:tabular-nums}
+.chart{display:flex;align-items:flex-end;gap:10px;height:110px;margin-top:14px}
+.chart div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;font-size:12px;color:var(--muted)}
+.chart i{display:block;width:100%;background:var(--soft);border-radius:4px 4px 0 0;min-height:2px}
+.chart div:last-child i{background:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+ul.l{list-style:none;margin:0;padding:0}
+ul.l li{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+ul.l li:last-child{border:0}
+.late{color:var(--warn);font-weight:500}
+.empty{color:var(--muted);font-size:13px;padding:6px 0}
+.bar{margin-bottom:10px}
+.add{background:var(--accent);color:var(--accent-ink);border:0;border-radius:8px;padding:8px 14px;font:inherit;font-weight:500;cursor:pointer}
+.scroll{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th{text-align:left;font-size:13px;color:var(--muted);font-weight:500;padding:10px 8px;border-bottom:1px solid var(--line)}
+td{padding:4px 4px;border-bottom:1px solid var(--line)}
+tr:last-child td{border:0}
+td input:not([type=checkbox]),td select{width:100%;font:inherit;color:var(--ink);background:transparent;border:1px solid transparent;border-radius:6px;padding:6px 6px}
+td input:hover,td select:hover{border-color:var(--line)}
+td input[type=number]{text-align:right;font-variant-numeric:tabular-nums}
+td input[type=checkbox]{width:18px;height:18px;margin:0 10px;accent-color:var(--accent)}
+tr.done input:not([type=checkbox]){text-decoration:line-through;color:var(--muted)}
+.x{background:none;border:0;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 8px}
+.x:hover{color:var(--warn)}
+footer{margin-top:24px;font-size:13px;color:var(--muted)}
+footer button{background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;cursor:pointer;padding:0}
+@media (max-width:760px){.hero,.grid{grid-template-columns:1fr}.big{font-size:34px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>1인 사업자 대시보드</h1>
+  <p class="sub">고객, 매출, 할 일, 콘텐츠를 한 곳에서 관리해요. 표 안의 칸을 눌러 바로 수정하세요.</p>
+  <nav id="nav" role="tablist"></nav>
+  <main id="main"></main>
+  <footer>입력한 내용은 이 브라우저에 자동 저장돼요. <button onclick="resetAll()">샘플 지우고 빈 상태로 시작</button></footer>
+</div>
+<script>
+var TABS=[['home','홈'],['customers','고객'],['sales','매출'],['tasks','할 일'],['content','콘텐츠']];
+var CFG={
+ customers:{f:[{k:'name',l:'이름/업체'},{k:'contact',l:'연락처'},{k:'status',l:'상태',o:['잠재','상담중','진행중','완료']},{k:'next',l:'다음 연락',t:'date'},{k:'memo',l:'메모'}],n:{name:'',contact:'',status:'잠재',next:'',memo:''}},
+ sales:{f:[{k:'date',l:'날짜',t:'date'},{k:'customer',l:'고객'},{k:'item',l:'내용'},{k:'amount',l:'금액(원)',t:'number'},{k:'paid',l:'입금',o:['입금대기','입금완료']}],n:{date:'',customer:'',item:'',amount:0,paid:'입금대기'}},
+ tasks:{f:[{k:'done',l:'완료',t:'check'},{k:'text',l:'할 일'},{k:'due',l:'기한',t:'date'},{k:'pri',l:'우선순위',o:['높음','보통','낮음']}],n:{done:false,text:'',due:'',pri:'보통'}},
+ content:{f:[{k:'title',l:'제목'},{k:'ch',l:'채널',o:['블로그','유튜브','인스타','뉴스레터']},{k:'status',l:'상태',o:['아이디어','제작중','예약','발행']},{k:'date',l:'발행일',t:'date'}],n:{title:'',ch:'블로그',status:'아이디어',date:''}}
+};
+var S,tab='home';
+function iso(o){var d=new Date();d.setDate(d.getDate()+(o||0));return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function seed(){return{
+ customers:[{name:'모아 스튜디오',contact:'hello@moa.example',status:'진행중',next:iso(3),memo:'로고 리뉴얼 2차 시안'},{name:'김하늘',contact:'010-0000-0000',status:'상담중',next:iso(1),memo:'견적서 보내기'},{name:'바다 카페',contact:'@bada_cafe',status:'잠재',next:iso(7),memo:'인스타에서 문의'}],
+ sales:[{date:iso(-2),customer:'모아 스튜디오',item:'로고 디자인 1차',amount:800000,paid:'입금완료'},{date:iso(-6),customer:'김하늘',item:'컨설팅 1회',amount:150000,paid:'입금대기'},{date:iso(-33),customer:'바다 카페',item:'메뉴판 제작',amount:420000,paid:'입금완료'},{date:iso(-65),customer:'모아 스튜디오',item:'브랜딩 기획',amount:600000,paid:'입금완료'}],
+ tasks:[{done:false,text:'김하늘님 견적서 발송',due:iso(0),pri:'높음'},{done:false,text:'세금계산서 발행',due:iso(-1),pri:'높음'},{done:false,text:'포트폴리오 업데이트',due:iso(5),pri:'보통'},{done:true,text:'월 정산 정리',due:iso(-3),pri:'낮음'}],
+ content:[{title:'로고 작업 과정 공개',ch:'인스타',status:'제작중',date:iso(2)},{title:'프리랜서 견적 내는 법',ch:'블로그',status:'아이디어',date:iso(6)},{title:'이달의 소식',ch:'뉴스레터',status:'예약',date:iso(9)}]}}
+function load(){try{S=JSON.parse(localStorage.getItem('solobiz1'))}catch(e){S=null}if(!S)S=seed()}
+function save(){try{localStorage.setItem('solobiz1',JSON.stringify(S))}catch(e){}}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function won(n){return Number(n||0).toLocaleString('ko-KR')+'원'}
+function setTab(t){tab=t;render()}
+function add(k){S[k].unshift(JSON.parse(JSON.stringify(CFG[k].n)));save();render()}
+function del(k,i){S[k].splice(i,1);save();render()}
+function upd(k,i,f,v,t){S[k][i][f]=t==='number'?Number(v)||0:v;save();render()}
+function resetAll(){if(confirm('샘플 데이터를 모두 지울까요?')){S={customers:[],sales:[],tasks:[],content:[]};save();render()}}
+function cell(k,i,f,v){
+ var a="upd('"+k+"',"+i+",'"+f.k+"',";
+ if(f.t==='check')return '<input type="checkbox" aria-label="완료" '+(v?'checked':'')+' onchange="'+a+'this.checked)">';
+ if(f.o)return '<select onchange="'+a+'this.value)">'+f.o.map(function(o){return '<option'+(o===v?' selected':'')+'>'+o+'</option>'}).join('')+'</select>';
+ return '<input type="'+(f.t||'text')+'" value="'+esc(v)+'" aria-label="'+f.l+'" onchange="'+a+'this.value,\''+(f.t||'')+'\')">';
+}
+function table(k){
+ var c=CFG[k],rows=S[k];
+ var h='<div class="bar"><button class="add" onclick="add(\''+k+'\')">+ 새 항목</button></div>';
+ if(!rows.length)return h+'<div class="panel empty">아직 항목이 없어요. 새 항목을 눌러 시작하세요.</div>';
+ h+='<div class="scroll"><table><thead><tr>'+c.f.map(function(f){return '<th>'+f.l+'</th>'}).join('')+'<th></th></tr></thead><tbody>';
+ rows.forEach(function(r,i){h+='<tr class="'+(r.done?'done':'')+'">'+c.f.map(function(f){return '<td>'+cell(k,i,f,r[f.k])+'</td>'}).join('')+'<td><button class="x" aria-label="삭제" onclick="del(\''+k+'\','+i+')">×</button></td></tr>'});
+ return h+'</tbody></table></div>';
+}
+function list(items,fn){return items.length?'<ul class="l">'+items.map(fn).join('')+'</ul>':'<div class="empty">해당 항목이 없어요.</div>'}
+function home(){
+ var today=iso(0),m=today.slice(0,7);
+ var sum=function(a){return a.reduce(function(s,r){return s+(Number(r.amount)||0)},0)};
+ var month=S.sales.filter(function(r){return (r.date||'').slice(0,7)===m&&r.paid==='입금완료'});
+ var wait=S.sales.filter(function(r){return r.paid==='입금대기'});
+ var active=S.customers.filter(function(r){return r.status==='진행중'||r.status==='상담중'}).length;
+ var todo=S.tasks.filter(function(r){return !r.done}).sort(function(a,b){return (a.due||'9')<(b.due||'9')?-1:1});
+ var bars=[];for(var n=5;n>=0;n--){var d=new Date();d.setDate(1);d.setMonth(d.getMonth()-n);var key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');bars.push({l:(d.getMonth()+1)+'월',v:sum(S.sales.filter(function(r){return (r.date||'').slice(0,7)===key&&r.paid==='입금완료'}))})}
+ var mx=Math.max.apply(null,bars.map(function(b){return b.v}).concat([1]));
+ var up=S.content.filter(function(r){return r.status!=='발행'}).sort(function(a,b){return (a.date||'9')<(b.date||'9')?-1:1}).slice(0,5);
+ var soon=S.customers.filter(function(r){return r.next&&r.status!=='완료'}).sort(function(a,b){return a.next<b.next?-1:1}).slice(0,5);
+ return '<div class="hero"><div class="panel"><div class="muted">이번 달 입금 완료</div><div class="big">'+won(sum(month))+'</div>'
+ +'<div class="chart" aria-label="최근 6개월 매출">'+bars.map(function(b){return '<div><i style="height:'+Math.round(b.v/mx*80)+'%" title="'+won(b.v)+'"></i>'+b.l+'</div>'}).join('')+'</div></div>'
+ +'<div class="panel stats"><div class="stat"><span>입금 대기</span><b>'+won(sum(wait))+'</b></div><div class="stat"><span>상담·진행 중 고객</span><b>'+active+'명</b></div><div class="stat"><span>남은 할 일</span><b>'+todo.length+'개</b></div></div></div>'
+ +'<div class="grid"><div class="panel"><h2>먼저 할 일</h2>'+list(todo.slice(0,5),function(r){var late=r.due&&r.due<today;return '<li><span>'+esc(r.text)+'</span><span class="'+(late?'late':'muted')+'">'+(late?'기한 지남 ':'')+esc(r.due)+'</span></li>'})+'</div>'
+ +'<div class="panel"><h2>다가오는 콘텐츠</h2>'+list(up,function(r){return '<li><span>'+esc(r.title)+'</span><span class="muted">'+esc(r.ch)+' · '+esc(r.date)+'</span></li>'})+'</div>'
+ +'<div class="panel"><h2>연락할 고객</h2>'+list(soon,function(r){return '<li><span>'+esc(r.name)+'</span><span class="'+(r.next<=today?'late':'muted')+'">'+esc(r.next)+'</span></li>'})+'</div></div>';
+}
+function render(){
+ $nav=document.getElementById('nav');
+ $nav.innerHTML=TABS.map(function(t){return '<button role="tab" aria-selected="'+(t[0]===tab)+'" onclick="setTab(\''+t[0]+'\')">'+t[1]+'</button>'}).join('');
+ document.getElementById('main').innerHTML=tab==='home'?home():table(tab);
+}
+load();render();
+</script>
+</body>
+</html>
